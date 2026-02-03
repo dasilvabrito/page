@@ -626,7 +626,14 @@ app.post('/api/login', (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!user) {
             console.log(`Login failed: User '${login}' not found.`);
-            return res.status(401).json({ error: "Credenciais inválidas (Usuário não encontrado)" });
+            // DEBUG: List available users to diagnose mismatch
+            db.all("SELECT login FROM users", [], (errAll, rows) => {
+                const available = rows ? rows.map(r => r.login).join(', ') : 'Error fetching list';
+                return res.status(401).json({
+                    error: `Usuário '${login}' não encontrado. Disponíveis no banco: [${available}]`
+                });
+            });
+            return;
         }
 
         const validPassword = await bcrypt.compare(password, user.password);
