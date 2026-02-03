@@ -103,7 +103,8 @@ export function LoginView({ onLogin }) {
                     </form>
                 </div>
                 <div className="bg-slate-50 px-8 py-4 border-t border-slate-100 text-center text-xs text-slate-400">
-                    &copy; 2026 LawFirm OS. Todos os direitos reservados.
+                    &copy; 2026 LawFirm OS. Todos os direitos reservados. <br />
+                    <span className="text-amber-600 font-bold">v1.2 (Debug Mode)</span>
                 </div>
             </div>
         </div>
