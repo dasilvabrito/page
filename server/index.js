@@ -605,6 +605,15 @@ app.get('/api/users', (req, res) => {
     });
 });
 
+// DEBUG: Env Check Endpoint
+app.get('/api/debug/env', (req, res) => {
+    res.json({
+        isPostgres: !!process.env.DATABASE_URL,
+        dbUrlLength: process.env.DATABASE_URL ? process.env.DATABASE_URL.length : 0,
+        envKeys: Object.keys(process.env).filter(k => k.includes('DB') || k.includes('URL'))
+    });
+});
+
 // DEBUG: Force Seed Endpoint
 app.get('/api/debug/seed', async (req, res) => {
     try {
