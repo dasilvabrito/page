@@ -608,16 +608,19 @@ app.get('/api/users', (req, res) => {
 // DEBUG: Force Seed Endpoint
 app.get('/api/debug/seed', async (req, res) => {
     try {
-        await db.query("INSERT INTO pipelines (name) VALUES ('Pipeline Padrão') ON CONFLICT DO NOTHING");
-        // Get pipeline ID (assuming 1 if newly created or existing)
-        // Check users
-        const hash = await bcrypt.hash('@Willian10', 10);
-        await db.query(`INSERT INTO users (name, email, login, role, password) VALUES 
-            ('Willian', 'willian@law.com', 'willian', 'admin', $1),
-            ('Admin', 'admin@law.com', 'admin', 'admin', '$2a$10$wOq2c.y8xJ1.Z6.Z6.Z6.u7kZ9.Z6.Z6.Z6.Z6.Z6')
-            ON CONFLICT(email) DO NOTHING`, [hash]); // Login conflict handled by unique constraint usually, but let's hope email catches it or similar.
+        // Use db.raw.query because db (adapter) does not have .query()
+        // And we know we are targeting Postgres here.
+        if (!db.raw.query) {
+            return res.status(500).send("Endpoint available only on Postgres/Production mode.");
+        }
 
-        // Actually, simpler: just try insert, ignore error.
+        await db.raw.query("INSERT INTO pipelines (name) VALUES ('Pipeline Padrão') ON CONFLICT DO NOTHING");
+
+        const hash = await bcrypt.hash('@Willian10', 10);
+        await db.raw.query(`INSERT INTO users (name, email, login, role, password) VALUES 
+            ('Willian', 'willian@law.com', 'willian', 'admin', $1),
+            ('Admin', 'admin@law.com', 'admin', 'admin', '$2a$10$wOq2c.y8J1.Z6.Z6.Z6.u7kZ9.Z6.Z6.Z6.Z6.Z6')
+            ON CONFLICT(email) DO NOTHING`, [hash]);
 
         res.send("<h1>Comando de Criação Executado!</h1><p>Tente fazer login agora.</p>");
     } catch (err) {
